@@ -3,7 +3,7 @@
 import json
 import logging
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.auth.utils import decode_access_token
 from app.schemas.ws_message import EventType, WSMessage
@@ -38,8 +38,8 @@ async def ws_ocorrencias(websocket: WebSocket):
                 msg_type = data.get("type")
 
                 if msg_type == EventType.PONG.value:
-                    # heartbeat response — no action needed
-                    pass
+                    # heartbeat response — record PONG for timeout detection
+                    manager.record_pong(websocket)
                 else:
                     # echo unknown message types back as pong
                     pong = WSMessage(
@@ -50,8 +50,8 @@ async def ws_ocorrencias(websocket: WebSocket):
 
             except json.JSONDecodeError:
                 pong = WSMessage(
-                    type=EventType.PONG,
-                    data={"received": raw},
+                  type=EventType.PONG,
+                  data={"received": raw},
                 )
                 await manager.send_personal(pong, websocket)
 

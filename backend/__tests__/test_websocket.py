@@ -10,7 +10,7 @@ from jose import jwt
 from app.config import settings
 from app.main import app
 from app.schemas.ws_message import EventType, WSMessage
-from app.services.ws_manager import manager
+from app.services.ws_manager import manager, WSConnectionManager
 
 
 @pytest.fixture

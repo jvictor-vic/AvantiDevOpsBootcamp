@@ -58,7 +58,7 @@ Você deve criar os **Dockerfiles** para backend e frontend, o arquivo **`.docke
 
 ## 🧱 O que deve ser criado
 
-Você precisa criar **4 arquivos**:
+Você precisa criar **5 arquivos**:
 
 ### 1. `backend/Dockerfile` — Dockerfile do Backend (FastAPI)
 
@@ -67,7 +67,7 @@ Multi-stage Dockerfile com duas etapas:
 - **Stage 1 (builder)**: Imagem base `python:3.12-slim`, instala dependências do `requirements.txt` com `pip`
 - **Stage 2 (runtime)**: Imagem base `python:3.12-slim`, copia pacotes instalados do builder, copia o código do backend, expõe porta 8000
 - **Healthcheck**: Usar o endpoint `/health` para verificar se o serviço está saudável
-- **Comando**: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
+- **Entrypoint**: Usar o script `entrypoint.sh` para executar migrações e seed antes de iniciar o servidor
 
 <details>
 <summary>💡 Estrutura sugerida do Dockerfile (clique para expandir)</summary>
@@ -92,10 +92,14 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD curl --fail http://localhost:8000/health || exit 1
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]
 ```
 
 > ⚠️ Este é apenas um guia de estrutura. Adapte conforme necessário — por exemplo, instalando `curl` no runtime para o healthcheck funcionar.
+> O script `entrypoint.sh` (item 5 abaixo) deve ser criado ao lado do Dockerfile, na raiz do diretório `backend/`.
 </details>
 
 ### 2. `frontend/Dockerfile` — Dockerfile do Frontend (Next.js)
@@ -202,13 +206,33 @@ Três serviços que se comunicam entre si:
 
 #### Ordem de inicialização do backend
 
-O backend precisa executar migrações e seed **antes** de ficar pronto para receber requisições. A ordem dentro do container deve ser:
+O script `entrypoint.sh` (item 5 abaixo) executa automaticamente a sequência correta:
 
 1. `alembic upgrade head` — aplicar migrações do banco
 2. `python -m scripts.seed` — popular dados iniciais (idempotente)
 3. `uvicorn app.main:app --host 0.0.0.0 --port 8000` — iniciar servidor
 
-> 💡 Você pode usar um script de entrada (`entrypoint.sh`) ou combiná-los no `CMD`/`command` do Dockerfile ou docker-compose.
+O Dockerfile deve copiar o script e defini-lo como `ENTRYPOINT`.
+
+### 5. `backend/entrypoint.sh` — Script de inicialização do backend
+
+O backend precisa executar migrações e popular o banco com dados iniciais **antes** de iniciar o servidor. Crie um script `entrypoint.sh` na raiz do diretório `backend/` que execute esses passos em ordem:
+
+```bash
+#!/bin/sh
+# backend/entrypoint.sh
+
+echo "→ Aplicando migrações do banco..."
+alembic upgrade head
+
+echo "→ Populando dados iniciais..."
+python -m scripts.seed
+
+echo "→ Iniciando servidor..."
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+> O `exec` no último comando é importante: ele substitui o processo do shell pelo uvicorn, garantindo que sinais (como SIGTERM no `docker compose down`) sejam corretamente propagados para o servidor.
 
 ---
 

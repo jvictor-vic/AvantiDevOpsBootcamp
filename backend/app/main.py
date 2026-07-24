@@ -1,11 +1,12 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from contextlib import asynccontextmanager
 
 from app.config.settings import settings
 from app.routers import auth, condominio, morador, ocorrencia, rivalidade, ws
 from app.services.ws_manager import manager
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):

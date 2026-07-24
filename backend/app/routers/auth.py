@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.auth.dependencies import get_current_user
@@ -24,5 +26,5 @@ async def login(data: LoginRequest):
 
 
 @router.get("/me", response_model=UserRead)
-async def me(current_user: UserRead = Depends(get_current_user)):
+async def me(current_user: Annotated[UserRead, Depends(get_current_user)]):
     return current_user

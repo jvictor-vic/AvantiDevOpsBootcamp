@@ -1,5 +1,6 @@
 """Unit tests for RivalidadeRepository."""
 
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -31,7 +32,7 @@ def repo(session: MagicMock) -> RivalidadeRepository:
 
 
 def _make(**kw: dict) -> MagicMock:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     vals: dict = {
         "id": 1,
@@ -40,8 +41,8 @@ def _make(**kw: dict) -> MagicMock:
         "motivo": "Barulho",
         "nivel": "moderado",
         "status": "ativa",
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
+        "updated_at": datetime.now(UTC),
     }
     vals.update(kw)
     m = MagicMock(spec=Rivalidade)

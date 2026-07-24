@@ -1,5 +1,6 @@
 """Unit tests for OcorrenciaService."""
 
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -23,7 +24,7 @@ def service(repo: MagicMock) -> OcorrenciaService:
 
 
 def _make_ocorrencia(**kw: dict) -> MagicMock:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     vals: dict = {
         "id": 1,
@@ -33,8 +34,8 @@ def _make_ocorrencia(**kw: dict) -> MagicMock:
         "gravidade": "media",
         "status": "aberta",
         "apartamento_id": 1,
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
+        "updated_at": datetime.now(UTC),
     }
     vals.update(kw)
     return MagicMock(**vals)

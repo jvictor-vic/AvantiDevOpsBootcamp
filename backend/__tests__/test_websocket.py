@@ -1,7 +1,7 @@
 """Tests for WebSocket /ws/ocorrencias feed."""
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -29,10 +29,11 @@ def test_connect_disconnect(client: TestClient):
 
 def test_multiple_connections(client: TestClient):
     """Deve aceitar múltiplas conexões simultâneas."""
-    with client.websocket_connect("/ws/ocorrencias") as ws1:
-        with client.websocket_connect("/ws/ocorrencias") as ws2:
-            assert ws1 is not None
-            assert ws2 is not None
+    with client.websocket_connect("/ws/ocorrencias") as ws1, client.websocket_connect(
+        "/ws/ocorrencias"
+    ) as ws2:
+        assert ws1 is not None
+        assert ws2 is not None
 
 
 def test_send_and_receive_pong(client: TestClient):
@@ -72,7 +73,7 @@ def test_connect_with_valid_token(client: TestClient):
     token = jwt.encode(
         {
             "sub": "admin@condocombat.com",
-            "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+            "exp": datetime.now(UTC) + timedelta(hours=1),
         },
         settings.SECRET_KEY,
         algorithm=settings.ALGORITHM,
@@ -96,9 +97,10 @@ async def test_manager_tracks_connections(client: TestClient):
 
 async def test_manager_tracks_multiple_connections(client: TestClient):
     """Manager deve rastrear múltiplas conexões."""
-    with client.websocket_connect("/ws/ocorrencias") as _ws1:
-        with client.websocket_connect("/ws/ocorrencias") as _ws2:
-            assert manager.active_connections == 2
+    with client.websocket_connect("/ws/ocorrencias") as _ws1, client.websocket_connect(
+        "/ws/ocorrencias"
+    ) as _ws2:
+        assert manager.active_connections == 2
 
     assert manager.active_connections == 0
 
@@ -108,22 +110,23 @@ async def test_manager_tracks_multiple_connections(client: TestClient):
 
 async def test_broadcast_reaches_all_connected(client: TestClient):
     """Broadcast deve alcançar todos conectados."""
-    with client.websocket_connect("/ws/ocorrencias") as ws1:
-        with client.websocket_connect("/ws/ocorrencias") as ws2:
-            msg = WSMessage(
-                type=EventType.OCORRENCIA_CRIADA,
-                data={"ocorrencia_id": 1, "titulo": "Teste"},
-            )
+    with client.websocket_connect("/ws/ocorrencias") as ws1, client.websocket_connect(
+        "/ws/ocorrencias"
+    ) as ws2:
+        msg = WSMessage(
+            type=EventType.OCORRENCIA_CRIADA,
+            data={"ocorrencia_id": 1, "titulo": "Teste"},
+        )
 
-            await manager.broadcast(msg)
+        await manager.broadcast(msg)
 
-            received1 = ws1.receive_json()
-            received2 = ws2.receive_json()
+        received1 = ws1.receive_json()
+        received2 = ws2.receive_json()
 
-            assert received1["type"] == EventType.OCORRENCIA_CRIADA.value
-            assert received2["type"] == EventType.OCORRENCIA_CRIADA.value
-            assert received1["data"]["ocorrencia_id"] == 1
-            assert received2["data"]["ocorrencia_id"] == 1
+        assert received1["type"] == EventType.OCORRENCIA_CRIADA.value
+        assert received2["type"] == EventType.OCORRENCIA_CRIADA.value
+        assert received1["data"]["ocorrencia_id"] == 1
+        assert received2["data"]["ocorrencia_id"] == 1
 
 
 async def test_broadcast_after_disconnect(client: TestClient):

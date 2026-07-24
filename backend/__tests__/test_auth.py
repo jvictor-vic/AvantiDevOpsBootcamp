@@ -1,5 +1,7 @@
+from datetime import UTC
+
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from app.auth.utils import create_access_token
 from app.main import app
@@ -66,7 +68,7 @@ async def test_me_without_token_returns_401():
 
 @pytest.mark.asyncio
 async def test_me_with_expired_token_returns_401():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     from jose import jwt
 
@@ -74,7 +76,7 @@ async def test_me_with_expired_token_returns_401():
 
     expired_payload = {
         "sub": "admin@condocombat.com",
-        "exp": datetime.now(timezone.utc) - timedelta(hours=1),
+        "exp": datetime.now(UTC) - timedelta(hours=1),
     }
     expired_token = jwt.encode(
         expired_payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM

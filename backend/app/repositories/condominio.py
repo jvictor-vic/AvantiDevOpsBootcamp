@@ -55,6 +55,6 @@ class CondominioRepository:
         condominio = await self.get_by_id(condominio_id)
         if condominio is None:
             return False
-        await self.session.delete(condominio)
+        self.session.delete(condominio)
         await self.session.commit()
         return True

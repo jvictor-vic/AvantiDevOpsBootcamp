@@ -1,6 +1,7 @@
 """Integration tests for Morador REST endpoints."""
 
 from collections.abc import AsyncGenerator
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock
 
 import httpx
@@ -50,7 +51,7 @@ def _make_morador(
     nome: str = "João Silva",
     cpf: str = "111.222.333-44",
 ) -> dict:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     obj = MagicMock()
     obj.id = morador_id
@@ -60,8 +61,8 @@ def _make_morador(
     obj.telefone = "(11) 99999-0000"
     obj.tipo = "proprietario"
     obj.apartamento_id = 1
-    obj.created_at = datetime.now(timezone.utc)
-    obj.updated_at = datetime.now(timezone.utc)
+    obj.created_at = datetime.now(UTC)
+    obj.updated_at = datetime.now(UTC)
     return obj
 
 

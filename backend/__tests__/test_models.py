@@ -175,6 +175,7 @@ async def test_apartamento_moradores_relationship(async_session):
 def test_unique_constraint_apartamento():
     """Verifica que existe constraint única para numero+bloco+torre+condominio_id no modelo."""
     from sqlalchemy import inspect
+
     from app.models import Apartamento
     insp = inspect(Apartamento.__table__)
     unique_constraints = [c for c in insp.constraints if hasattr(c, 'columns') and c.__class__.__name__ == 'UniqueConstraint']
@@ -187,6 +188,7 @@ def test_unique_constraint_apartamento():
 def test_unique_constraint_rivalidade():
     """Verifica que existe constraint única para par (apartamento_a, apartamento_b) no modelo."""
     from sqlalchemy import inspect
+
     from app.models import Rivalidade
     insp = inspect(Rivalidade.__table__)
     unique_constraints = [c for c in insp.constraints if hasattr(c, 'columns') and c.__class__.__name__ == 'UniqueConstraint']

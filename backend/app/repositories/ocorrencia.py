@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -45,7 +45,7 @@ class OcorrenciaRepository:
         return list(result.scalars().all())
 
     async def list_recentes(self) -> list[Ocorrencia]:
-        limite = datetime.now(timezone.utc) - timedelta(hours=24)
+        limite = datetime.now(UTC) - timedelta(hours=24)
         result = await self.session.execute(
             select(Ocorrencia)
             .where(Ocorrencia.created_at >= limite)

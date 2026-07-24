@@ -60,6 +60,7 @@ def mock_session():
     sync como scalar_one_or_none() e scalars().all() funcionem.
     """
     from unittest.mock import AsyncMock, MagicMock
+
     from sqlalchemy.ext.asyncio import AsyncSession
 
     session = AsyncMock(spec=AsyncSession)

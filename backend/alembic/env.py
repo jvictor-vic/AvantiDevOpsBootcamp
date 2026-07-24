@@ -1,15 +1,21 @@
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from alembic import context
 from app.config import settings
 from app.database import Base
 
 # Import all models so Base.metadata is fully populated
-from app.models import Condominio, Apartamento, Morador, Ocorrencia, Rivalidade  # noqa: F401
+from app.models import (  # noqa: F401
+    Apartamento,
+    Condominio,
+    Morador,
+    Ocorrencia,
+    Rivalidade,
+)
 
 config = context.config
 if config.config_file_name is not None:

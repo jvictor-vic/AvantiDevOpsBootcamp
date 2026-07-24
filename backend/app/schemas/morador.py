@@ -1,7 +1,7 @@
+import re
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
-import re
 
 
 class MoradorBase(BaseModel):

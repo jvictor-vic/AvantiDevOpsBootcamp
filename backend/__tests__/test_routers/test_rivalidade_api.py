@@ -1,7 +1,7 @@
 """Integration tests for Rivalidade REST endpoints."""
 
 from collections.abc import AsyncGenerator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import httpx
@@ -56,8 +56,8 @@ def _make(**kw: dict) -> MagicMock:
         "motivo": "Barulho",
         "nivel": "moderado",
         "status": "ativa",
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
+        "updated_at": datetime.now(UTC),
     }
     vals.update(kw)
     return MagicMock(**vals)

@@ -1,7 +1,7 @@
 """Integration tests for Ocorrencia REST endpoints."""
 
 from collections.abc import AsyncGenerator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import httpx
@@ -54,8 +54,8 @@ def _make(**kw: dict) -> MagicMock:
         "gravidade": "media",
         "status": "aberta",
         "apartamento_id": 1,
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
+        "updated_at": datetime.now(UTC),
     }
     vals.update(kw)
     m = MagicMock(**vals)

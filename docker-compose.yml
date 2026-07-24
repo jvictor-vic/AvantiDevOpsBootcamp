@@ -1,0 +1,53 @@
+# =============================================================================
+# CondoCombat — Docker Compose (Backend + Frontend + Database)
+# =============================================================================
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: condocombat-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-condocombat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-condocombat}
+      POSTGRES_DB: ${POSTGRES_DB:-condocombat}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-condocombat}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (FastAPI)
+  api:
+    image: your-dockerhub-username/condocombat-backend:latest
+    container_name: condocombat-api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-condocombat}:${POSTGRES_PASSWORD:-condocombat}@db:5432/${POSTGRES_DB:-condocombat}
+      SECRET_KEY: ${SECRET_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend (Next.js)
+  web:
+    image: your-dockerhub-username/condocombat-frontend:latest
+    container_name: condocombat-web
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local

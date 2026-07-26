@@ -24,7 +24,7 @@ services:
 
   # Backend API (FastAPI)
   api:
-    image: your-dockerhub-username/condocombat-backend:latest
+    image: vic0vic/condocombat-backend:latest
     container_name: condocombat-api
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-condocombat}:${POSTGRES_PASSWORD:-condocombat}@db:5432/${POSTGRES_DB:-condocombat}
@@ -38,7 +38,7 @@ services:
 
   # Frontend (Next.js)
   web:
-    image: your-dockerhub-username/condocombat-frontend:latest
+    image: vic0vic/condocombat-frontend:latest
     container_name: condocombat-web
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000

@@ -1,0 +1,65 @@
+name: 🚀 CD — Terraform (Latest)
+
+on:
+  workflow_run:
+    workflows: ["Backend CI", "Frontend CI", "Deploy Landing Page"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  terraform-deploy:
+    name: 🏗️ Provisionar e Fazer Deploy da Infraestrutura
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js (para build da Landing Page)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Build da Landing Page
+        run: |
+          cd landing
+          npm ci
+          npm run build
+
+      - name: ⚙️ Configurar a Versão Mais Recente do Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "latest"
+
+      - name: 🔍 Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: 📋 Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: ./terraform
+        env:
+          TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          TF_VAR_supabase_access_token: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          TF_VAR_supabase_db_password: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          TF_VAR_render_api_key: ${{ secrets.RENDER_API_KEY }}
+          TF_VAR_render_owner_id: ${{ secrets.RENDER_OWNER_ID }}
+          TF_VAR_backend_secret_key: ${{ secrets.BACKEND_SECRET_KEY }}
+          TF_VAR_netlify_api_token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          TF_VAR_netlify_site_name: ${{ secrets.NETLIFY_SITE_NAME }}
+
+      - name: 🚀 Terraform Apply
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./terraform
+        env:
+          TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          TF_VAR_supabase_access_token: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          TF_VAR_supabase_db_password: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          TF_VAR_render_api_key: ${{ secrets.RENDER_API_KEY }}
+          TF_VAR_render_owner_id: ${{ secrets.RENDER_OWNER_ID }}
+          TF_VAR_backend_secret_key: ${{ secrets.BACKEND_SECRET_KEY }}
+          TF_VAR_netlify_api_token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          TF_VAR_netlify_site_name: ${{ secrets.NETLIFY_SITE_NAME }}

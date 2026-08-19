@@ -1,4 +1,4 @@
-name: Deploy Landing Page
+name: Landing CI
 
 on:
   push:
@@ -46,34 +46,3 @@ jobs:
         with:
           name: landing-dist
           path: landing/dist/
-
-  cd:
-    name: CD — Deploy to Netlify
-    needs: ci
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: landing-dist
-          path: landing/dist/
-
-      - name: Install Netlify CLI
-        run: npm install -g netlify-cli
-
-      - name: Deploy to Netlify
-        run: |
-          netlify deploy \
-            --dir=landing/dist \
-            --prod \
-            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --site=${{ secrets.NETLIFY_SITE_ID }}

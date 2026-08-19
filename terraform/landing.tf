@@ -1,6 +1,7 @@
 # Busca a referência do site da Landing Page na Netlify
 data "netlify_site" "landing" {
   name = var.netlify_site_name
+  team_slug = "jvictor-vic"
 }
 
 # Configura a variável de ambiente PUBLIC_APP_URL com a URL gerada para o Frontend (Render)

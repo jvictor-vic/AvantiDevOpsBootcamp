@@ -39,3 +39,9 @@ variable "netlify_site_name" {
   description = "Nome do site da Landing Page na Netlify"
   default     = "condocombat-landing"
 }
+
+variable "netlify_team_id" {
+  type        = string
+  description = "ID do time da Netlify"
+  default = "6a56682c95ceb3408aa37f5e"
+}

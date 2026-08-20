@@ -6,7 +6,9 @@ resource "render_web_service" "backend" {
 
   runtime_source = {
     image = {
-      image_url = "docker.io/${var.dockerhub_username}/condocombat-backend:latest"
+      image_url = "docker.io/${var.dockerhub_username}/condocombat-backend"
+
+      tag = "latest"
     }
   }
 

@@ -7,7 +7,7 @@ data "netlify_site" "landing" {
 # Configura a variável de ambiente PUBLIC_APP_URL com a URL gerada para o Frontend (Render)
 resource "netlify_environment_variable" "landing_public_url" {
   site_id = data.netlify_site.landing.id
-  key     = "PUBLIC_APP_URL"
+  key     = "PUBLIC_URL"
   values = [
     {
       value   = render_web_service.frontend.url
